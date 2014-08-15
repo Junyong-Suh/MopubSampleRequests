@@ -9,8 +9,10 @@ MOPUB_TEST_IDS = {'2a64cacd316649238e1960f3a2579feb','56f3e9dc861a4d1492f7e6f13b
 
 def mopubRequest(mopubAdUnitId):
 	# Mopub Sample Request
-	url = 'http://ads.mopub.com/m/ad?mr=1&v=1&udid=sha:B6E38584B64C04F621B21EF1763A3118AA28B4BA&q=key:value&id='+ mopubAdUnitId
-	print "[Request] \n"+ url
+	url = 'http://ads.mopub.com/m/ad?id=2a64cacd316649238e1960f3a2579feb&v=1&udid=sha:CF95DB7F559BD1FC1ACC842135E2CA536C14F8AE&tp=zynga&mr=1&admin_debug_mode=0&include='+ mopubAdUnitId
+	# url = 'http://ads.mopub.com/m/ad?id='+ mopubAdUnitId  +'&v=1&udid=sha:CF95DB7F559BD1FC1ACC842135E2CA536C14F8AE&tp=zynga&mr=1'
+	# url = 'http://ads.mopub.com/m/ad?mr=1&v=1&udid=sha:B6E38584B64C04F621B21EF1763A3118AA28B4BA&q=key:value&id='+ mopubAdUnitId
+	print "\n[Request] \n"+ url
 
 	# send a request and get response
 	response = urllib2.urlopen(url, timeout=2).read()
@@ -18,11 +20,13 @@ def mopubRequest(mopubAdUnitId):
 	# Try 10 times with 2 secs cooldown time if HTTP Status is not 200 or empty response
 	retryCount = 1
 	retryUntil = 10
-	while not response and retryCount < retryUntil:
-		# if ("HTTP Status" in response):
-		# 	print 'HTTP Status is not 200 from the server (trying '+ str(retryCount) +'/'+ str(retryUntil) +')'
-		# if (not response):
-			# print 'No response from the server (trying '+ str(retryCount) +'/'+ str(retryUntil) +')'
+	while (not response or "<html>" not in response)  and retryCount < retryUntil:
+		if ("HTTP Status" in response):
+		 	print 'HTTP Status is not 200 from the server (trying '+ str(retryCount) +'/'+ str(retryUntil) +')'
+		elif (not response):
+			print 'No response (trying '+ str(retryCount) +'/'+ str(retryUntil) +')'
+		elif ("<html>" not in response):
+			print response +' (trying '+ str(retryCount) +'/'+ str(retryUntil) +')'
 		retryCount = retryCount + 1
 		time.sleep(2)
 		response = urllib2.urlopen(url).read()
@@ -37,7 +41,7 @@ def mopubRequest(mopubAdUnitId):
 for mopubAdUnitId in MOPUB_TEST_IDS:
 	result = mopubRequest(mopubAdUnitId)
 	if (not result):
-		print '[Response]\nNo response for Ad Unit ID: '+ mopubAdUnitId + '\n'
+		print '[Response]\nNo valid response for Ad Unit ID: '+ mopubAdUnitId + '\n'
 	else:
 		print '[Response]\n' + result + '\n'
 
